@@ -27,7 +27,7 @@
     <artifactId>broadleaf-cybersource</artifactId>
     <name>BroadleafCommerce CyberSource</name>
     <description>BroadleafCommerce CyberSource</description>
-    <version>2.0.0-GA</version>
+    <version>2.1.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
