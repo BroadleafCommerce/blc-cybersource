@@ -16,8 +16,8 @@
 
 package org.broadleafcommerce.payment.service.module;
 
-import java.util.Currency;
-
+import org.broadleafcommerce.common.money.Money;
+import org.broadleafcommerce.common.time.SystemTime;
 import org.broadleafcommerce.core.payment.domain.CreditCardPaymentInfo;
 import org.broadleafcommerce.core.payment.domain.PaymentResponseItem;
 import org.broadleafcommerce.core.payment.domain.PaymentResponseItemImpl;
@@ -25,8 +25,6 @@ import org.broadleafcommerce.core.payment.service.PaymentContext;
 import org.broadleafcommerce.core.payment.service.exception.PaymentException;
 import org.broadleafcommerce.core.payment.service.module.PaymentModule;
 import org.broadleafcommerce.core.payment.service.type.PaymentInfoType;
-import org.broadleafcommerce.common.money.Money;
-import org.broadleafcommerce.common.time.SystemTime;
 import org.broadleafcommerce.service.module.CyberSourceModule;
 import org.broadleafcommerce.vendor.cybersource.service.CyberSourceServiceManager;
 import org.broadleafcommerce.vendor.cybersource.service.message.CyberSourceBillingRequest;
@@ -35,6 +33,8 @@ import org.broadleafcommerce.vendor.cybersource.service.payment.CyberSourcePayme
 import org.broadleafcommerce.vendor.cybersource.service.payment.message.CyberSourceCardRequest;
 import org.broadleafcommerce.vendor.cybersource.service.payment.message.CyberSourceCardResponse;
 import org.broadleafcommerce.vendor.cybersource.service.payment.type.CyberSourceTransactionType;
+
+import java.util.Currency;
 
 /**
  * 
@@ -45,11 +45,13 @@ public class CyberSourceCreditCardModule extends CyberSourceModule implements Pa
 	
 	private CyberSourceServiceManager serviceManager;
 
-	public PaymentResponseItem authorize(PaymentContext paymentContext) throws PaymentException {
+	@Override
+    public PaymentResponseItem authorize(PaymentContext paymentContext) throws PaymentException {
 		return authTypeTransaction(paymentContext, CyberSourceTransactionType.AUTHORIZE);
 	}
 	
-	public PaymentResponseItem authorizeAndDebit(PaymentContext paymentContext) throws PaymentException {
+	@Override
+    public PaymentResponseItem authorizeAndDebit(PaymentContext paymentContext) throws PaymentException {
 		return authTypeTransaction(paymentContext, CyberSourceTransactionType.AUTHORIZEANDCAPTURE);
 	}
 	
@@ -70,6 +72,7 @@ public class CyberSourceCreditCardModule extends CyberSourceModule implements Pa
         PaymentResponseItem responseItem = buildBasicResponse(response);
 		responseItem.setAvsCode(response.getAuthResponse().getAvsCode());
 		responseItem.setAuthorizationCode(response.getAuthResponse().getAuthorizationCode());
+        responseItem.setCurrency(paymentContext.getPaymentInfo().getOrder().getCurrency());
 		responseItem.setAmountPaid(response.getAuthResponse().getAmount());
 		responseItem.setProcessorResponseCode(response.getAuthResponse().getProcessorResponse());
 		responseItem.setProcessorResponseText(response.getAuthResponse().getProcessorResponse());
@@ -77,11 +80,13 @@ public class CyberSourceCreditCardModule extends CyberSourceModule implements Pa
         return responseItem;
 	}
 
-	public PaymentResponseItem balance(PaymentContext paymentContext) throws PaymentException {
+	@Override
+    public PaymentResponseItem balance(PaymentContext paymentContext) throws PaymentException {
 		throw new PaymentException("balance not supported");
 	}
 
-	public PaymentResponseItem credit(PaymentContext paymentContext) throws PaymentException {
+	@Override
+    public PaymentResponseItem credit(PaymentContext paymentContext) throws PaymentException {
 		CyberSourceCardRequest cardRequest = new CyberSourceCardRequest();
 		cardRequest.setTransactionType(CyberSourceTransactionType.CREDIT);
 		setCurrency(paymentContext, cardRequest);
@@ -100,7 +105,8 @@ public class CyberSourceCreditCardModule extends CyberSourceModule implements Pa
         return responseItem;
 	}
 
-	public PaymentResponseItem debit(PaymentContext paymentContext) throws PaymentException {
+	@Override
+    public PaymentResponseItem debit(PaymentContext paymentContext) throws PaymentException {
 		CyberSourceCardRequest cardRequest = new CyberSourceCardRequest();
 		cardRequest.setTransactionType(CyberSourceTransactionType.CAPTURE);
 		setCurrency(paymentContext, cardRequest);
@@ -119,7 +125,8 @@ public class CyberSourceCreditCardModule extends CyberSourceModule implements Pa
         return responseItem;
 	}
 	
-	public PaymentResponseItem reverseAuthorize(PaymentContext paymentContext) throws PaymentException {
+	@Override
+    public PaymentResponseItem reverseAuthorize(PaymentContext paymentContext) throws PaymentException {
 		CyberSourceCardRequest cardRequest = new CyberSourceCardRequest();
 		cardRequest.setTransactionType(CyberSourceTransactionType.REVERSEAUTHORIZE);
 		setCurrency(paymentContext, cardRequest);
@@ -141,7 +148,8 @@ public class CyberSourceCreditCardModule extends CyberSourceModule implements Pa
         return responseItem;
 	}
 
-	public PaymentResponseItem voidPayment(PaymentContext paymentContext) throws PaymentException {
+	@Override
+    public PaymentResponseItem voidPayment(PaymentContext paymentContext) throws PaymentException {
 		CyberSourceCardRequest cardRequest = new CyberSourceCardRequest();
 		cardRequest.setTransactionType(CyberSourceTransactionType.VOIDTRANSACTION);
 		setCurrency(paymentContext, cardRequest);
@@ -160,7 +168,8 @@ public class CyberSourceCreditCardModule extends CyberSourceModule implements Pa
         return responseItem;
 	}
 
-	public Boolean isValidCandidate(PaymentInfoType paymentType) {
+	@Override
+    public Boolean isValidCandidate(PaymentInfoType paymentType) {
 		return PaymentInfoType.CREDIT_CARD.equals(paymentType);
 	}
 	

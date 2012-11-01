@@ -16,10 +16,6 @@
 
 package org.broadleafcommerce.vendor;
 
-import java.util.ArrayList;
-
-import javax.annotation.Resource;
-
 import org.broadleafcommerce.common.money.Money;
 import org.broadleafcommerce.core.catalog.domain.Sku;
 import org.broadleafcommerce.core.catalog.domain.SkuImpl;
@@ -43,6 +39,10 @@ import org.broadleafcommerce.test.BaseTest;
 import org.broadleafcommerce.vendor.cybersource.service.CyberSourceServiceManager;
 import org.springframework.test.annotation.Rollback;
 import org.testng.annotations.Test;
+
+import javax.annotation.Resource;
+
+import java.util.ArrayList;
 
 /**
  * @author jfischer
@@ -87,6 +87,7 @@ public class CyberSourceTaxModuleTest extends BaseTest {
 		item1.setSku(sku1);
 		item1.setPrice(new Money(10D));
 		
+		item1.setOrder(order);
 		FulfillmentGroup fg1 = new FulfillmentGroupImpl();
 		fg1.setId(1L);
 		FulfillmentGroupItem fgi1 = new FulfillmentGroupItemImpl();
@@ -104,6 +105,7 @@ public class CyberSourceTaxModuleTest extends BaseTest {
 		item2.setSku(sku2);
 		item2.setPrice(new Money(30D));
 		
+		item2.setOrder(order);
 		FulfillmentGroup fg2 = new FulfillmentGroupImpl();
 		fg2.setId(2L);
 		FulfillmentGroupItem fgi2 = new FulfillmentGroupItemImpl();
