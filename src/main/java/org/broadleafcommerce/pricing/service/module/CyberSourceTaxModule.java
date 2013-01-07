@@ -16,24 +16,9 @@
 
 package org.broadleafcommerce.pricing.service.module;
 
-import java.util.ArrayList;
-import java.util.Currency;
-import java.util.HashMap;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.broadleafcommerce.common.money.Money;
-import org.broadleafcommerce.core.order.domain.BundleOrderItem;
-import org.broadleafcommerce.core.order.domain.DiscreteOrderItem;
-import org.broadleafcommerce.core.order.domain.FulfillmentGroup;
-import org.broadleafcommerce.core.order.domain.FulfillmentGroupFee;
-import org.broadleafcommerce.core.order.domain.FulfillmentGroupImpl;
-import org.broadleafcommerce.core.order.domain.FulfillmentGroupItem;
-import org.broadleafcommerce.core.order.domain.Order;
-import org.broadleafcommerce.core.order.domain.OrderItem;
-import org.broadleafcommerce.core.order.domain.TaxDetail;
-import org.broadleafcommerce.core.order.domain.TaxDetailImpl;
-import org.broadleafcommerce.core.order.domain.TaxType;
+import org.broadleafcommerce.core.order.domain.*;
 import org.broadleafcommerce.core.pricing.service.exception.TaxException;
 import org.broadleafcommerce.core.pricing.service.module.TaxModule;
 import org.broadleafcommerce.service.module.CyberSourceModule;
@@ -44,6 +29,11 @@ import org.broadleafcommerce.vendor.cybersource.service.tax.message.CyberSourceT
 import org.broadleafcommerce.vendor.cybersource.service.tax.message.CyberSourceTaxItemResponse;
 import org.broadleafcommerce.vendor.cybersource.service.tax.message.CyberSourceTaxRequest;
 import org.broadleafcommerce.vendor.cybersource.service.tax.message.CyberSourceTaxResponse;
+
+import java.util.ArrayList;
+import java.util.Currency;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Tax module that utilizes the Broadleaf Commerce API for CyberSource
@@ -213,7 +203,7 @@ public class CyberSourceTaxModule extends CyberSourceModule implements TaxModule
 	}
     
     private void setCurrency(Order order, CyberSourceTaxRequest taxRequest) {
-		Currency currency = order.getTotal().getCurrency();
+		Currency currency = order.getRemainingTotal().getCurrency();
         if (currency == null) {
         	currency = Money.defaultCurrency();
         }
