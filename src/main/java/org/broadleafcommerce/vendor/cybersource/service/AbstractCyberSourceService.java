@@ -41,26 +41,26 @@ import org.broadleafcommerce.vendor.cybersource.service.api.TransactionProcessor
  */
 public abstract class AbstractCyberSourceService {
 
-	protected String merchantId;
-	protected String serverUrl;
-	protected String libVersion;
-	protected Integer failureReportingThreshold;
+    protected String merchantId;
+    protected String serverUrl;
+    protected String libVersion;
+    protected Integer failureReportingThreshold;
     protected Integer failureCount = 0;
     protected Boolean isUp = true;
     protected IdGenerationService idGenerationService;
     
     protected ReplyMessage sendRequest(RequestMessage request) throws AxisFault, MalformedURLException, RemoteException, ServiceException {
-		EngineConfiguration config = new FileProvider("CyberSourceDeploy.wsdd");
-		TransactionProcessorLocator service = new TransactionProcessorLocator(config);
+        EngineConfiguration config = new FileProvider("CyberSourceDeploy.wsdd");
+        TransactionProcessorLocator service = new TransactionProcessorLocator(config);
         URL endpoint = new URL(getServerUrl());
         ITransactionProcessorStub stub = (ITransactionProcessorStub) service.getportXML(endpoint);
         stub._setProperty(WSHandlerConstants.USER, request.getMerchantID());
         ReplyMessage reply = stub.runTransaction(request);
         
         return reply;
-	}
-	
-	protected synchronized void clearStatus() {
+    }
+    
+    protected synchronized void clearStatus() {
         isUp = true;
         failureCount = 0;
     }
@@ -72,56 +72,56 @@ public abstract class AbstractCyberSourceService {
             failureCount++;
         }
     }
-	
-	public Integer getFailureReportingThreshold() {
-		return failureReportingThreshold;
-	}
+    
+    public Integer getFailureReportingThreshold() {
+        return failureReportingThreshold;
+    }
 
-	public String getMerchantId() {
-		return merchantId;
-	}
+    public String getMerchantId() {
+        return merchantId;
+    }
 
-	public String getServerUrl() {
-		return serverUrl;
-	}
-	
-	public String getLibVersion() {
-		return libVersion;
-	}
+    public String getServerUrl() {
+        return serverUrl;
+    }
+    
+    public String getLibVersion() {
+        return libVersion;
+    }
 
-	public String getServiceName() {
-		return getClass().getName();
-	}
+    public String getServiceName() {
+        return getClass().getName();
+    }
 
-	public synchronized ServiceStatusType getServiceStatus() {
+    public synchronized ServiceStatusType getServiceStatus() {
         if (isUp) {
             return ServiceStatusType.UP;
         } else {
             return ServiceStatusType.DOWN;
         }
-	}
+    }
 
-	public void setFailureReportingThreshold(Integer failureReportingThreshold) {
-		this.failureReportingThreshold = failureReportingThreshold;
-	}
+    public void setFailureReportingThreshold(Integer failureReportingThreshold) {
+        this.failureReportingThreshold = failureReportingThreshold;
+    }
 
-	public void setMerchantId(String merchantId) {
-		this.merchantId = merchantId;
-	}
+    public void setMerchantId(String merchantId) {
+        this.merchantId = merchantId;
+    }
 
-	public void setServerUrl(String serverUrl) {
-		this.serverUrl = serverUrl;
-	}
-	
-	public void setLibVersion(String libVersion) {
-		this.libVersion = libVersion;
-	}
-	
-	public IdGenerationService getIdGenerationService() {
-		return idGenerationService;
-	}
-	
-	public void setIdGenerationService(IdGenerationService idGenerationService) {
-		this.idGenerationService = idGenerationService;
-	}
+    public void setServerUrl(String serverUrl) {
+        this.serverUrl = serverUrl;
+    }
+    
+    public void setLibVersion(String libVersion) {
+        this.libVersion = libVersion;
+    }
+    
+    public IdGenerationService getIdGenerationService() {
+        return idGenerationService;
+    }
+    
+    public void setIdGenerationService(IdGenerationService idGenerationService) {
+        this.idGenerationService = idGenerationService;
+    }
 }

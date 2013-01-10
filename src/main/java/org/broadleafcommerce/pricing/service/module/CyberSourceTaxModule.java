@@ -66,20 +66,20 @@ public class CyberSourceTaxModule extends CyberSourceModule implements TaxModule
     private String orderAcceptancePostalCode;
 
     public Order calculateTaxForOrder(Order order) throws TaxException {
-    	if (orderAcceptanceCountry != null && !orderAcceptanceCountry.equalsIgnoreCase("CA") && !orderAcceptanceCountry.equalsIgnoreCase("US")) {
-    		throw new TaxException("CyberSource tax calculation only supported for the United States and Canada.");
-    	}
-    	HashMap<Long, CyberSourceTaxItemRequest> requestLibrary = new HashMap<Long, CyberSourceTaxItemRequest>();
-    	CyberSourceTaxRequest taxRequest = createTaxRequest(order, requestLibrary);
-		CyberSourceTaxResponse response;
-		try {
-			response = callService(taxRequest);
-		} catch (org.broadleafcommerce.common.vendor.service.exception.TaxException e) {
-			throw new TaxException(e);
-		}
-		calculateTaxes(order, requestLibrary, response);
-		
-		return order;
+        if (orderAcceptanceCountry != null && !orderAcceptanceCountry.equalsIgnoreCase("CA") && !orderAcceptanceCountry.equalsIgnoreCase("US")) {
+            throw new TaxException("CyberSource tax calculation only supported for the United States and Canada.");
+        }
+        HashMap<Long, CyberSourceTaxItemRequest> requestLibrary = new HashMap<Long, CyberSourceTaxItemRequest>();
+        CyberSourceTaxRequest taxRequest = createTaxRequest(order, requestLibrary);
+        CyberSourceTaxResponse response;
+        try {
+            response = callService(taxRequest);
+        } catch (org.broadleafcommerce.common.vendor.service.exception.TaxException e) {
+            throw new TaxException(e);
+        }
+        calculateTaxes(order, requestLibrary, response);
+        
+        return order;
     }
 
     private void calculateTaxes(Order order, HashMap<Long, CyberSourceTaxItemRequest> requestLibrary, CyberSourceTaxResponse response) {
@@ -124,56 +124,56 @@ public class CyberSourceTaxModule extends CyberSourceModule implements TaxModule
             }
         }
     }
-	
-	private CyberSourceTaxRequest createTaxRequest(Order order, HashMap<Long, CyberSourceTaxItemRequest> requestLibrary) throws TaxException {
-		if (order.getPaymentInfos() == null || order.getPaymentInfos().get(0) == null || order.getPaymentInfos().get(0).getAddress() == null) {
-			throw new TaxException("The order must have at least one PaymentInfo instance associated with a completed Address in order to calculate tax.");
-		}
-		CyberSourceTaxRequest taxRequest = new CyberSourceTaxRequest();
-		setCurrency(order, taxRequest);
-		CyberSourceBillingRequest billingRequest = createBillingRequest(order.getPaymentInfos().get(0));
-		taxRequest.setBillingRequest(billingRequest);
-		String myNexus = StringUtils.join(nexus.toArray(new String[]{}), ',');
-		if (!StringUtils.isEmpty(myNexus)) taxRequest.setNexus(myNexus);
-		String myNoNexus = StringUtils.join(nonexus.toArray(new String[]{}), ',');
-		if (!StringUtils.isEmpty(myNoNexus)) taxRequest.setNoNexus(myNoNexus);
-		taxRequest.setOrderAcceptanceCity(orderAcceptanceCity);
-		taxRequest.setOrderAcceptanceCounty(orderAcceptanceCounty);
-		taxRequest.setOrderAcceptanceCountry(orderAcceptanceCountry);
-		taxRequest.setOrderAcceptanceState(orderAcceptanceState);
-		taxRequest.setOrderAcceptancePostalCode(orderAcceptancePostalCode);
-		
-		for (FulfillmentGroup fulfillmentGroup : order.getFulfillmentGroups()) {
-			if (fulfillmentGroup.getAddress().getCountry() != null && !fulfillmentGroup.getAddress().getCountry().getAbbreviation().equalsIgnoreCase("CA") && !fulfillmentGroup.getAddress().getCountry().getAbbreviation().equalsIgnoreCase("US")) {
-				throw new TaxException("CyberSource tax calculation only supported for the United States and Canada.");
-			}
-			for (FulfillmentGroupItem item : fulfillmentGroup.getFulfillmentGroupItems()) {
-				int itemCounter = 0;
-				OrderItem orderItem = item.getOrderItem();
-				if (orderItem.getTaxablePrice().greaterThan(Money.zero(taxRequest.getCurrency()))) {
-					CyberSourceTaxItemRequest itemRequest = new CyberSourceTaxItemRequest();
-					itemRequest.setNonCyberSourceFulfillmentGroupId(fulfillmentGroup.getId());
-					itemRequest.setNonCyberSourceItemIdentifier("Item:" + itemCounter++);
-					if (DiscreteOrderItem.class.isAssignableFrom(orderItem.getClass())) {
-						DiscreteOrderItem discreteItem = (DiscreteOrderItem) orderItem;
-						itemRequest.setProductName(discreteItem.getName());
-						itemRequest.setProductSKU(discreteItem.getSku().getName());
-						itemRequest.setDescription(discreteItem.getSku().getDescription());
-					} else if (BundleOrderItem.class.isAssignableFrom(orderItem.getClass())){
-						BundleOrderItem bundleItem = (BundleOrderItem) orderItem;
-						itemRequest.setProductName(bundleItem.getName());
-						itemRequest.setDescription("Bundled Order Item");
-					} else {
-						itemRequest.setProductName("Other");
-						itemRequest.setDescription("Other product type: " + orderItem.getClass().getName());
-					}
-					itemRequest.setQuantity(1L);
-					itemRequest.setNonCyberSourceQuantity(Integer.valueOf(item.getQuantity()).longValue());
-					itemRequest.setUnitPrice(orderItem.getTaxablePrice());
-					taxRequest.getItemRequests().add(itemRequest);
-					requestLibrary.put(itemRequest.getId(), itemRequest);
-				}
-	        }
+    
+    private CyberSourceTaxRequest createTaxRequest(Order order, HashMap<Long, CyberSourceTaxItemRequest> requestLibrary) throws TaxException {
+        if (order.getPaymentInfos() == null || order.getPaymentInfos().get(0) == null || order.getPaymentInfos().get(0).getAddress() == null) {
+            throw new TaxException("The order must have at least one PaymentInfo instance associated with a completed Address in order to calculate tax.");
+        }
+        CyberSourceTaxRequest taxRequest = new CyberSourceTaxRequest();
+        setCurrency(order, taxRequest);
+        CyberSourceBillingRequest billingRequest = createBillingRequest(order.getPaymentInfos().get(0));
+        taxRequest.setBillingRequest(billingRequest);
+        String myNexus = StringUtils.join(nexus.toArray(new String[]{}), ',');
+        if (!StringUtils.isEmpty(myNexus)) taxRequest.setNexus(myNexus);
+        String myNoNexus = StringUtils.join(nonexus.toArray(new String[]{}), ',');
+        if (!StringUtils.isEmpty(myNoNexus)) taxRequest.setNoNexus(myNoNexus);
+        taxRequest.setOrderAcceptanceCity(orderAcceptanceCity);
+        taxRequest.setOrderAcceptanceCounty(orderAcceptanceCounty);
+        taxRequest.setOrderAcceptanceCountry(orderAcceptanceCountry);
+        taxRequest.setOrderAcceptanceState(orderAcceptanceState);
+        taxRequest.setOrderAcceptancePostalCode(orderAcceptancePostalCode);
+        
+        for (FulfillmentGroup fulfillmentGroup : order.getFulfillmentGroups()) {
+            if (fulfillmentGroup.getAddress().getCountry() != null && !fulfillmentGroup.getAddress().getCountry().getAbbreviation().equalsIgnoreCase("CA") && !fulfillmentGroup.getAddress().getCountry().getAbbreviation().equalsIgnoreCase("US")) {
+                throw new TaxException("CyberSource tax calculation only supported for the United States and Canada.");
+            }
+            for (FulfillmentGroupItem item : fulfillmentGroup.getFulfillmentGroupItems()) {
+                int itemCounter = 0;
+                OrderItem orderItem = item.getOrderItem();
+                if (orderItem.getTaxablePrice().greaterThan(Money.zero(taxRequest.getCurrency()))) {
+                    CyberSourceTaxItemRequest itemRequest = new CyberSourceTaxItemRequest();
+                    itemRequest.setNonCyberSourceFulfillmentGroupId(fulfillmentGroup.getId());
+                    itemRequest.setNonCyberSourceItemIdentifier("Item:" + itemCounter++);
+                    if (DiscreteOrderItem.class.isAssignableFrom(orderItem.getClass())) {
+                        DiscreteOrderItem discreteItem = (DiscreteOrderItem) orderItem;
+                        itemRequest.setProductName(discreteItem.getName());
+                        itemRequest.setProductSKU(discreteItem.getSku().getName());
+                        itemRequest.setDescription(discreteItem.getSku().getDescription());
+                    } else if (BundleOrderItem.class.isAssignableFrom(orderItem.getClass())){
+                        BundleOrderItem bundleItem = (BundleOrderItem) orderItem;
+                        itemRequest.setProductName(bundleItem.getName());
+                        itemRequest.setDescription("Bundled Order Item");
+                    } else {
+                        itemRequest.setProductName("Other");
+                        itemRequest.setDescription("Other product type: " + orderItem.getClass().getName());
+                    }
+                    itemRequest.setQuantity(1L);
+                    itemRequest.setNonCyberSourceQuantity(Integer.valueOf(item.getQuantity()).longValue());
+                    itemRequest.setUnitPrice(orderItem.getTaxablePrice());
+                    taxRequest.getItemRequests().add(itemRequest);
+                    requestLibrary.put(itemRequest.getId(), itemRequest);
+                }
+            }
             for (FulfillmentGroupFee fulfillmentGroupFee : fulfillmentGroup.getFulfillmentGroupFees()) {
                 int feeCounter = 0;
                 if (fulfillmentGroupFee.getAmount().greaterThan(Money.zero(taxRequest.getCurrency()))) {
@@ -189,7 +189,7 @@ public class CyberSourceTaxModule extends CyberSourceModule implements TaxModule
                     requestLibrary.put(itemRequest.getId(), itemRequest);
                 }
             }
-			
+            
             if (fulfillmentGroup.getShippingPrice() != null && fulfillmentGroup.getShippingPrice().greaterThan(Money.zero(taxRequest.getCurrency()))) {
                 CyberSourceTaxItemRequest itemRequest = new CyberSourceTaxItemRequest();
                 itemRequest.setNonCyberSourceFulfillmentGroupId(fulfillmentGroup.getId());
@@ -203,22 +203,22 @@ public class CyberSourceTaxModule extends CyberSourceModule implements TaxModule
                 requestLibrary.put(itemRequest.getId(), itemRequest);
             }
         }
-		return taxRequest;
-	}
+        return taxRequest;
+    }
     
     private CyberSourceTaxResponse callService(CyberSourceTaxRequest taxRequest) throws org.broadleafcommerce.common.vendor.service.exception.TaxException {
-		CyberSourceTaxService service = (CyberSourceTaxService) serviceManager.getValidService(taxRequest);
-        CyberSourceTaxResponse response = (CyberSourceTaxResponse) service.process(taxRequest);		
-		return response;
-	}
+        CyberSourceTaxService service = (CyberSourceTaxService) serviceManager.getValidService(taxRequest);
+        CyberSourceTaxResponse response = (CyberSourceTaxResponse) service.process(taxRequest);     
+        return response;
+    }
     
     private void setCurrency(Order order, CyberSourceTaxRequest taxRequest) {
-		Currency currency = order.getTotal().getCurrency();
+        Currency currency = order.getTotal().getCurrency();
         if (currency == null) {
-        	currency = Money.defaultCurrency();
+            currency = Money.defaultCurrency();
         }
         taxRequest.setCurrency(currency.getCurrencyCode());
-	}
+    }
 
     public String getName() {
         return name;
@@ -229,67 +229,67 @@ public class CyberSourceTaxModule extends CyberSourceModule implements TaxModule
     }
 
     public CyberSourceServiceManager getServiceManager() {
-		return serviceManager;
-	}
+        return serviceManager;
+    }
 
-	public void setServiceManager(CyberSourceServiceManager serviceManager) {
-		this.serviceManager = serviceManager;
-	}
+    public void setServiceManager(CyberSourceServiceManager serviceManager) {
+        this.serviceManager = serviceManager;
+    }
 
-	public List<String> getNexus() {
-		return nexus;
-	}
+    public List<String> getNexus() {
+        return nexus;
+    }
 
-	public void setNexus(List<String> nexus) {
-		this.nexus = nexus;
-	}
+    public void setNexus(List<String> nexus) {
+        this.nexus = nexus;
+    }
 
-	public List<String> getNonexus() {
-		return nonexus;
-	}
+    public List<String> getNonexus() {
+        return nonexus;
+    }
 
-	public void setNonexus(List<String> nonexus) {
-		this.nonexus = nonexus;
-	}
+    public void setNonexus(List<String> nonexus) {
+        this.nonexus = nonexus;
+    }
 
-	public java.lang.String getOrderAcceptanceCounty() {
-		return orderAcceptanceCounty;
-	}
+    public java.lang.String getOrderAcceptanceCounty() {
+        return orderAcceptanceCounty;
+    }
 
-	public void setOrderAcceptanceCounty(java.lang.String orderAcceptanceCounty) {
-		this.orderAcceptanceCounty = orderAcceptanceCounty;
-	}
+    public void setOrderAcceptanceCounty(java.lang.String orderAcceptanceCounty) {
+        this.orderAcceptanceCounty = orderAcceptanceCounty;
+    }
 
-	public java.lang.String getOrderAcceptanceCountry() {
-		return orderAcceptanceCountry;
-	}
+    public java.lang.String getOrderAcceptanceCountry() {
+        return orderAcceptanceCountry;
+    }
 
-	public void setOrderAcceptanceCountry(java.lang.String orderAcceptanceCountry) {
-		this.orderAcceptanceCountry = orderAcceptanceCountry;
-	}
+    public void setOrderAcceptanceCountry(java.lang.String orderAcceptanceCountry) {
+        this.orderAcceptanceCountry = orderAcceptanceCountry;
+    }
 
-	public java.lang.String getOrderAcceptanceState() {
-		return orderAcceptanceState;
-	}
+    public java.lang.String getOrderAcceptanceState() {
+        return orderAcceptanceState;
+    }
 
-	public void setOrderAcceptanceState(java.lang.String orderAcceptanceState) {
-		this.orderAcceptanceState = orderAcceptanceState;
-	}
+    public void setOrderAcceptanceState(java.lang.String orderAcceptanceState) {
+        this.orderAcceptanceState = orderAcceptanceState;
+    }
 
-	public java.lang.String getOrderAcceptancePostalCode() {
-		return orderAcceptancePostalCode;
-	}
+    public java.lang.String getOrderAcceptancePostalCode() {
+        return orderAcceptancePostalCode;
+    }
 
-	public void setOrderAcceptancePostalCode(java.lang.String orderAcceptancePostalCode) {
-		this.orderAcceptancePostalCode = orderAcceptancePostalCode;
-	}
+    public void setOrderAcceptancePostalCode(java.lang.String orderAcceptancePostalCode) {
+        this.orderAcceptancePostalCode = orderAcceptancePostalCode;
+    }
 
-	public String getOrderAcceptanceCity() {
-		return orderAcceptanceCity;
-	}
+    public String getOrderAcceptanceCity() {
+        return orderAcceptanceCity;
+    }
 
-	public void setOrderAcceptanceCity(String orderAcceptanceCity) {
-		this.orderAcceptanceCity = orderAcceptanceCity;
-	}
-	
+    public void setOrderAcceptanceCity(String orderAcceptanceCity) {
+        this.orderAcceptanceCity = orderAcceptanceCity;
+    }
+    
 }
